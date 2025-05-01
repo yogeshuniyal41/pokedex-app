@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "target": "ES2015",               // Supports private fields like #private
+      "module": "CommonJS",             // Needed for Node.js compatibility
+      "outDir": "dist",                 // Output compiled files to /dist
+      "esModuleInterop": true,         // Allow ES module imports
+      "strict": true,                  // Enable all strict type-checking
+      "skipLibCheck": true             // Speeds up compilation, avoids typing errors from node_modules
+    },
+    "include": ["prisma/seed.ts"]
+  }
+  
