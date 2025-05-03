@@ -2,17 +2,18 @@ import { prisma } from '@/server/db'; // Make sure you import prisma
 import { publicProcedure, createTRPCRouter } from '@/server/api/trpc';
 import { z } from 'zod';
 
+
 export const pokemonRouter = createTRPCRouter({
   getAll: publicProcedure.query(async () => {
     const pokemons = await prisma.pokemon.findMany({
       include: { types: true },
     });
 
-    return pokemons.map(p => ({
+    return pokemons.map((p) => ({
       id: p.id,
       name: p.name,
       sprite: p.sprite,
-      types: p.types.map(t => t.type),
+      types: p.types.map((t) => t.type),
     }));
   }),
 
