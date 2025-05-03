@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Box, Typography } from '@mui/material';
 import { api } from '@/utils/api';
 import PokemonCard from '@/components/PokemonCard';
+import { Pokemon } from '@/types/pokemon';
 
 export default function Home() {
   const { data: pokemons, isLoading } = api.pokemon.getAll.useQuery();
@@ -30,7 +31,7 @@ export default function Home() {
         }}
       >
         {!isLoading &&
-          pokemons?.map((poke) => (
+          pokemons?.map((poke: Pokemon) => (
             <Link key={poke.id} href={`/pokemon/${poke.name}`} passHref>
               <Box
                 sx={{
