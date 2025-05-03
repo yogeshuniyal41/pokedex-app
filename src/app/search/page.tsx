@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import React, { useState, useEffect } from 'react';
 import { trpc } from '@/app/trpc/client';
 import PokedexTable from '@/components/PokedexTable';
@@ -20,14 +20,14 @@ const Home = () => {
 
   useEffect(() => {
     if (data) {
-      const transformed = data.map((pokemon: { id: number; name: string; sprite: string; types: { type: string }[] }) => ({
+      const transformed: Pokemon[] = data.map((pokemon: { id: number; name: string; sprite: string; types: { type: string }[] }) => ({
         ...pokemon,
         types: pokemon.types.map((t: { type: string }) => t.type),
       }));
       setPokemonArray(transformed);
       setFilteredPokemon(transformed);
       
-      console.log(transformed)// Set default view to all
+      console.log(transformed); // Set default view to all
     }
   }, [data]);
 
@@ -88,7 +88,7 @@ const Home = () => {
         </Box>
       )}
 
-      <PokedexTable  pokemonArray={filteredPokemon} />
+      <PokedexTable pokemonArray={filteredPokemon} />
 
       <div>
         <h1>Search Pokémon by Type</h1>
