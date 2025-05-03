@@ -41,7 +41,6 @@ export const pokemonRouter = createTRPCRouter({
   getManyByName: publicProcedure
     .input(z.array(z.string())) // Expecting an array of names
     .query(async ({ input }) => {
-      // Use prisma instead of ctx.db
       return prisma.pokemon.findMany({
         where: {
           name: {
@@ -60,7 +59,8 @@ export const pokemonRouter = createTRPCRouter({
         },
       });
     }),
-    getOneByName: publicProcedure
+
+  getOneByName: publicProcedure
     .input(z.string())
     .query(async ({ input }) => {
       const pokemon = await prisma.pokemon.findUnique({
@@ -81,6 +81,50 @@ export const pokemonRouter = createTRPCRouter({
   
       throw new Error('Pokemon not found');
     }),
+
+    searchPokemon: publicProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ input }) => {
+      const pokemons = await prisma.pokemon.findMany({
+        where: {
+          name: {
+            contains: input.query,
+            mode: 'insensitive',
+          },
+        },
+        include: { types: true },
+      });
   
+      return pokemons.map((p) => ({
+        id: p.id,
+        name: p.name,
+        sprite: p.sprite,
+        types: p.types.map((t) => t.type),
+      }));
+    }),
+  
+  getByType: publicProcedure
+  .input(z.string().optional())
+  .query(async ({ input }) => {
+    const pokemons = await prisma.pokemon.findMany({
+      where: input
+        ? {
+            types: {
+              some: {
+                type: input,
+              },
+            },
+          }
+        : undefined,
+      include: { types: true },
+    });
+
+    return pokemons.map((p) => ({
+      id: p.id,
+      name: p.name,
+      sprite: p.sprite,
+      types: p.types.map((t) => t.type),
+    }));
+  }),
 });
 

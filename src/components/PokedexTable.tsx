@@ -1,59 +1,35 @@
-import React from 'react';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
-import { Pokemon } from '@/types/pokemon';
+// src/components/PokedexTable.tsx
+
+import { FC } from 'react';
+import { Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, Chip, Avatar } from '@mui/material';
+import { Pokemon } from '@/types/pokemon'; // Ensure the correct Pokemon type is used.
 
 interface PokedexTableProps {
   pokemonArray: Pokemon[];
 }
 
-const PokedexTable: React.FC<PokedexTableProps> = ({ pokemonArray }) => {
+const PokedexTable: FC<PokedexTableProps> = ({ pokemonArray }) => {
   return (
-    <TableContainer component="div" sx={{ maxWidth: '100%', marginTop: 3 }}>
-      <Table>
+    <TableContainer style={{background:'transparent', fontWeight:'bold'}} component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="Pokédex Table">
         <TableHead>
           <TableRow>
-            <TableCell>Id</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Types</TableCell>
-            <TableCell>Images</TableCell>
+            <TableCell><strong>Name</strong></TableCell>
+            <TableCell><strong>Types</strong></TableCell>
+            <TableCell><strong>Sprite</strong></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {pokemonArray.map((pokemon) => (
-            <TableRow key={pokemon.id}>
+            <TableRow key={pokemon.id} hover>
+              <TableCell>{pokemon.name}</TableCell>
               <TableCell>
-                <Typography variant="body1">{pokemon.id}</Typography>
+                {pokemon.types.map((type) => (
+                  <Chip key={type} label={type} color="primary" style={{ marginRight: 4 }} />
+                ))}
               </TableCell>
               <TableCell>
-                <Typography variant="body1">{pokemon.name}</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="body2">{pokemon.types.join(', ')}</Typography>
-              </TableCell>
-              <TableCell>
-                <Box
-                  sx={{
-                    width: 80, // default size
-                    height: 80, // default size
-                    borderRadius: '50%',
-                    overflow: 'hidden',
-                    transition: 'transform 0.3s ease',
-                    '&:hover img': {
-                      transform: 'scale(2)',
-                      transition: 'transform 0.3s ease',
-                    },
-                  }}
-                >
-                  <img
-                    src={pokemon.sprite}
-                    alt={pokemon.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      
-                    }}
-                  />
-                </Box>
+                <Avatar style={{height:'30%' , width:'30%'}} src={pokemon.sprite} alt={pokemon.name} />
               </TableCell>
             </TableRow>
           ))}
