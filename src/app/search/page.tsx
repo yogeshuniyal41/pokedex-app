@@ -20,9 +20,9 @@ const Home = () => {
 
   useEffect(() => {
     if (data) {
-      const transformed = data.map(pokemon => ({
+      const transformed = data.map((pokemon: { id: number; name: string; sprite: string; types: { type: string }[] }) => ({
         ...pokemon,
-        types: pokemon.types.map(t => t.type),
+        types: pokemon.types.map((t: { type: string }) => t.type),
       }));
       setPokemonArray(transformed);
       setFilteredPokemon(transformed);
