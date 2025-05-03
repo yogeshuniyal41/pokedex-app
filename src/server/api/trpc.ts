@@ -1,8 +1,10 @@
+
+
 import { initTRPC } from '@trpc/server';
 import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import { prisma } from '@/server/db'; // Make sure this path is correct
 
-export const createContext = async (opts: FetchCreateContextFnOptions) => {
+export const createContext = async ({}: FetchCreateContextFnOptions) => {
   return {
     db: prisma,
   };
