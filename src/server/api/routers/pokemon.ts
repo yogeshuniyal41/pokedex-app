@@ -1,26 +1,23 @@
-import { prisma } from '@/server/db'; // Make sure you import prisma
+import { prisma } from '@/server/db';
 import { publicProcedure, createTRPCRouter } from '@/server/api/trpc';
 import { z } from 'zod';
 
-// Assuming Pokemon is the type that reflects the structure of the Pokemon object in your database
-
-
 export const pokemonRouter = createTRPCRouter({
-  // Fetch all pokemons with types
+  // Fetch all Pokémon with types
   getAll: publicProcedure.query(async () => {
     const pokemons = await prisma.pokemon.findMany({
-      include: { types: true }, // Ensure types are included
+      include: { types: true },
     });
 
     return pokemons.map((p) => ({
       id: p.id,
       name: p.name,
       sprite: p.sprite,
-      types: p.types.map((t) => t.type), // Mapping the types to an array of type names
+      types: Array.isArray(p.types) ? p.types.map((t: { type: string }) => t.type) : [], // Corrected type extraction
     }));
   }),
 
-  // Fetch a single pokemon by its ID
+  // Fetch a Pokémon by ID
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
@@ -29,36 +26,38 @@ export const pokemonRouter = createTRPCRouter({
         include: { types: true },
       });
 
-      if (pokemon) {
-        return {
-          id: pokemon.id,
-          name: pokemon.name,
-          types: pokemon.types.map((type) => type.type), // Map the types to their names
-          sprite: pokemon.sprite,
-        };
-      }
+      if (!pokemon) throw new Error(`Pokémon with ID ${input.id} not found`);
 
-      throw new Error('Pokemon not found');
+      return {
+        id: pokemon.id,
+        name: pokemon.name,
+        sprite: pokemon.sprite,
+        types: Array.isArray(pokemon.types) ? pokemon.types.map((t: { type: string }) => t.type) : [],
+      };
     }),
 
-  // Fetch many pokemons by name
+  // Fetch multiple Pokémon by name
   getManyByName: publicProcedure
-    .input(z.array(z.string())) // Array of names to search for
+    .input(z.array(z.string()))
     .query(async ({ input }) => {
-      return prisma.pokemon.findMany({
+      const pokemons = await prisma.pokemon.findMany({
         where: {
-          name: { in: input },
+          OR: input.map(name => ({
+            name: { equals: name, mode: 'insensitive' }, // Ensures case-insensitive search
+          })),
         },
-        select: {
-          id: true,
-          name: true,
-          types: { select: { type: true } },
-          sprite: true,
-        },
+        include: { types: true },
       });
+
+      return pokemons.map((p) => ({
+        id: p.id,
+        name: p.name,
+        sprite: p.sprite,
+        types: Array.isArray(p.types) ? p.types.map((t: { type: string }) => t.type) : [],
+      }));
     }),
 
-  // Fetch a single pokemon by name
+  // Fetch a Pokémon by name
   getOneByName: publicProcedure
     .input(z.string())
     .query(async ({ input }) => {
@@ -67,28 +66,23 @@ export const pokemonRouter = createTRPCRouter({
         include: { types: true },
       });
 
-      if (pokemon) {
-        return {
-          id: pokemon.id,
-          name: pokemon.name,
-          sprite: pokemon.sprite,
-          types: pokemon.types.map((type) => type.type), // Extract types
-        };
-      }
+      if (!pokemon) throw new Error(`Pokémon "${input}" not found`);
 
-      throw new Error('Pokemon not found');
+      return {
+        id: pokemon.id,
+        name: pokemon.name,
+        sprite: pokemon.sprite,
+        types: Array.isArray(pokemon.types) ? pokemon.types.map((t: { type: string }) => t.type) : [],
+      };
     }),
 
-  // Search for pokemons by a query string
+  // Search for Pokémon by query string
   searchPokemon: publicProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ input }) => {
       const pokemons = await prisma.pokemon.findMany({
         where: {
-          name: {
-            contains: input.query, // Case-insensitive search
-            mode: 'insensitive',
-          },
+          name: { contains: input.query, mode: 'insensitive' },
         },
         include: { types: true },
       });
@@ -97,18 +91,16 @@ export const pokemonRouter = createTRPCRouter({
         id: p.id,
         name: p.name,
         sprite: p.sprite,
-        types: p.types.map((t) => t.type),
+        types: Array.isArray(p.types) ? p.types.map((t: { type: string }) => t.type) : [],
       }));
     }),
 
-  // Fetch pokemons by type
+  // Fetch Pokémon by type
   getByType: publicProcedure
-    .input(z.string().optional()) // Type string, but optional
+    .input(z.string().optional())
     .query(async ({ input }) => {
       const pokemons = await prisma.pokemon.findMany({
-        where: input
-          ? { types: { some: { type: input } } } // Search by types
-          : undefined,
+        where: input ? { types: { some: { type: input } } } : {},
         include: { types: true },
       });
 
@@ -116,7 +108,7 @@ export const pokemonRouter = createTRPCRouter({
         id: p.id,
         name: p.name,
         sprite: p.sprite,
-        types: p.types.map((t) => t.type),
+        types: Array.isArray(p.types) ? p.types.map((t: { type: string }) => t.type) : [],
       }));
     }),
 });

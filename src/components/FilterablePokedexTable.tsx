@@ -17,7 +17,7 @@ const FilterablePokedexTable: React.FC<PokemonTypeSelectionProps> = ({
         value={selectedType || ''}
         onChange={(e) => selectType(e.target.value || undefined)}
       >
-        <option value="">Type</option>
+        <option value="">None</option>
         {availableTypes.map((type) => (
           <option key={type} value={type}>
             {type}
